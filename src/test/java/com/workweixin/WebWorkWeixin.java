@@ -26,7 +26,7 @@ public class WebWorkWeixin {
     @Test
     void login() throws InterruptedException, IOException {
         WebDriver driver = new ChromeDriver();
-        driver.get("https://work.weixin.qq.com/wework_admin/loginpage_wx?etype=#contacts");
+        driver.get("https://work.weixin.qq.com/wework_admin/frame");
         Thread.sleep(20000);
         Set< Cookie > cookies = driver.manage().getCookies();
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
