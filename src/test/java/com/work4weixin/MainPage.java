@@ -7,6 +7,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.Cookie;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 public class MainPage extends BasePage {
 
     void needLogin() throws IOException, InterruptedException {
-
+        WebDriver driver = new ChromeDriver();
         driver.get("https://work.weixin.qq.com/wework_admin/frame");
         Thread.sleep(20000);
         Set< Cookie > cookies = driver.manage().getCookies();
@@ -33,21 +34,36 @@ public class MainPage extends BasePage {
     }
 
     void beforeAll() throws IOException, InterruptedException {
+        File file = new File("cookies.yaml");
 
-        driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
-        driver.get("https://work.weixin.qq.com/wework_admin/frame");
+        if (file.exists()){
+            //如果登录成功过，就复用文件内的session进行登录
 
-        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-        TypeReference typeReference =new TypeReference<List<HashMap<String,Object>>>() {};
-        List<HashMap<String,Object>> cookies = mapper.readValue(new File("cookies.yaml"),typeReference);
+//多浏览器兼容测试
+/*            if(System.getenv("browser")=="chrome"){
+                driver = new ChromeDriver();
+            }else if(System.getenv("browser")=="firefox"){
+                driver = new FirefoxDriver();
+            }*/
 
-        cookies.forEach(cookieMap->{
-            driver.manage().addCookie(new Cookie(cookieMap.get("name").toString(),cookieMap.get("value").toString()));
-        });
+            driver = new ChromeDriver();
+            driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
+            driver.get("https://work.weixin.qq.com/wework_admin/frame");
 
-        driver.navigate().refresh();
-        driver.manage().window().maximize();
-        Thread.sleep(3000);
+            ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+            TypeReference typeReference =new TypeReference<List<HashMap<String,Object>>>() {};
+            List<HashMap<String,Object>> cookies = mapper.readValue(new File("cookies.yaml"),typeReference);
+
+            cookies.forEach(cookieMap->{
+                driver.manage().addCookie(new Cookie(cookieMap.get("name").toString(),cookieMap.get("value").toString()));
+            });
+
+            driver.navigate().refresh();
+            driver.manage().window().maximize();
+            Thread.sleep(3000);
+        }else {
+            needLogin();
+        }
     }
 
 

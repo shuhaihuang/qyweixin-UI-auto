@@ -11,9 +11,9 @@ import org.openqa.selenium.chrome.ChromeDriver;
  */
 public class BasePage {
 
-    WebDriver driver = new ChromeDriver();
-    public BasePage(WebDriver driver) {
+    WebDriver driver;
 
+    public BasePage(WebDriver driver) {
         this.driver=driver;
     }
 
@@ -23,7 +23,6 @@ public class BasePage {
 
 
     void click(By by){
-
         driver.findElement(by).click();
     }
     void sendkeys(By by,String contents){
