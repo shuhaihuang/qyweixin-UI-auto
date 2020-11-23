@@ -1,4 +1,4 @@
-package com.work4weixin.classic;
+package com.classic;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;

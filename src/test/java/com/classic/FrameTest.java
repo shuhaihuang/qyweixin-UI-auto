@@ -1,4 +1,4 @@
-package com.aice;
+package com.classic;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
