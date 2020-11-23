@@ -12,6 +12,7 @@ import org.openqa.selenium.WebDriver;
 public class ContactPage extends BasePage{
     //po原则2 不要暴露页面内部实现细节
     private By parterInfo = By.cssSelector(".js_party_info");
+    private By party_name = By.cssSelector("#party_name");
 
     public ContactPage(WebDriver driver) {
         //保存driver到自己的实例
@@ -44,6 +45,12 @@ public class ContactPage extends BasePage{
         return text;
     }
 
+    public String getPartyName(){
+        String name = driver.findElement(party_name).getText();
+        System.out.println(name);
+        return name;
+    }
+
     public ContactPage addDepartMent(String departmentName) throws InterruptedException {
 
         click(By.linkText("添加"));
@@ -54,6 +61,14 @@ public class ContactPage extends BasePage{
         //第一个部门名称：炎黄春秋
         click(By.xpath("(//ul[@role='group'])[3]/li"));
         click(By.linkText("确定"));
+        return this;
+    }
+
+    public ContactPage updateDepartment(String departmentname){
+        searchDepartment(departmentname);
+        click(By.linkText("修改名称"));
+        sendkeys(By.name("name"),departmentname+"_testmodify");
+        click(By.linkText("保存"));
         return this;
     }
 

@@ -1,7 +1,10 @@
 package com.work4weixin.web;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.IOException;
 
@@ -12,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @Date 2020/11/15 11:58
  * @Version 1.0
  */
+
 public class ContactPOTest {
 
     private static MainPage main;
@@ -20,7 +24,7 @@ public class ContactPOTest {
     static void beforeAll() throws IOException, InterruptedException {
         main = new MainPage();
         //清理数据
-        main.contact().clearAllDepartment();
+//        main.contact().clearAllDepartment();
         //为什么不放到afterall,如果用例中途停止，teardown不能保证一定会被执行，下次用例可能会因为数据没清理导致失败
     }
 
@@ -40,7 +44,6 @@ public class ContactPOTest {
         mainPage.contact();
         ContactPage contactPage = new ContactPage(driver);*/
 
-//        MainPage mainPage = new MainPage();
         ContactPage contactPage = main.contact();
         contactPage.searchDepartment("大中华代表部");
         String text = contactPage.getPartyInfo();
@@ -55,13 +58,15 @@ public class ContactPOTest {
 
     @Test
     void testAddDepartment() throws InterruptedException {
-        String departmentName = "中东地区部";
+        String departmentName = "新天下部";
         assertTrue(main.contact().addDepartMent(departmentName).searchDepartment(departmentName).getPartyInfo().contains(departmentName));
     }
 
-    @Test
-    void updateDepartment(){
-
+    @Order(3)
+    @ParameterizedTest
+    @ValueSource(strings = "IT运维部")
+    void updateDepartment(String departmentname){
+        assertTrue(main.contact().updateDepartment(departmentname).getPartyName().contains("testmodify"));
     }
 
 }

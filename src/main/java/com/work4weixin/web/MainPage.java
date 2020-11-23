@@ -6,6 +6,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Cookie;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,47 +23,53 @@ import java.util.concurrent.TimeUnit;
 public class MainPage extends BasePage {
 
     void needLogin() throws IOException, InterruptedException {
+        ChromeOptions options = new ChromeOptions();
+        System.setProperty("webdriver.chrome.driver", "D:\\chromedriver\\chromedriver.exe");
+        options.addArguments("--user-data-dir='C:\\Users\\sean\\AppData\\Local\\Google\\Chrome\\User Data\\Default'");
+        options.addArguments("-headless");
         driver = new ChromeDriver(options);
+
         driver.get("https://work.weixin.qq.com/wework_admin/frame");
-        Thread.sleep(20000);
+        driver.manage().window().maximize();
+        Thread.sleep(5000);
+        driver.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
         Set< Cookie > cookies = driver.manage().getCookies();
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-        mapper.writeValue(new File("cookies.yaml"),cookies);
-        //第一次登录获取cookie存于本地，需要扫一扫
+        mapper.writeValue(new File("cookies.yaml"),cookies); //第一次登录获取cookie存于本地，需要扫一扫
     }
 
     void beforeAll() throws IOException, InterruptedException {
         File file = new File("cookies.yaml");
 
         if (file.exists()){
-            //如果登录成功过，就复用文件内的session进行登录
-
-//多浏览器兼容测试
-/*            if(System.getenv("browser")=="chrome"){
-                driver = new ChromeDriver();
-            }else if(System.getenv("browser")=="firefox"){
-                driver = new FirefoxDriver();
-            }*/
+            //如果登录成功过，就复用yaml文件内的session进行登录
+            ChromeOptions options = new ChromeOptions();
+            System.setProperty("webdriver.chrome.driver", "D:\\chromedriver\\chromedriver.exe");
+            options.addArguments("--user-data-dir='C:\\Users\\sean\\AppData\\Local\\Google\\Chrome\\User Data\\Default'");
+            options.addArguments("--headless");
             driver = new ChromeDriver(options);
-            driver.get("https://work.weixin.qq.com/wework_admin/frame");
-            driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
 
+            driver.get("https://work.weixin.qq.com/wework_admin/frame#index");
+            Thread.sleep(5000);
+            driver.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
+            driver.manage().window().maximize();
             ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
             TypeReference typeReference =new TypeReference<List<HashMap<String,Object>>>() {};
             List<HashMap<String,Object>> cookies = mapper.readValue(new File("cookies.yaml"),typeReference);
-
+            System.out.println(cookies);
             cookies.forEach(cookieMap->{
-                driver.manage().addCookie(new Cookie(cookieMap.get("name").toString(),cookieMap.get("value").toString()));
+                driver.manage().addCookie(new Cookie(
+                        cookieMap.get("name").toString(),
+                        cookieMap.get("value").toString()
+                ));
             });
-
+            Thread.sleep(2000);
             driver.navigate().refresh();
-            driver.manage().window().maximize();
             Thread.sleep(3000);
         }else {
             needLogin();
         }
     }
-
 
     public MainPage() throws IOException, InterruptedException {
         //初始化selenium，复用session，打开网站
@@ -76,6 +83,10 @@ public class MainPage extends BasePage {
         //po原则4 跳转或者进入新页面使用返回新的po来模拟
         return new ContactPage(driver);
     }
-
-
+    //多浏览器兼容测试
+            /*if(System.getenv("browser")=="chrome"){
+                driver = new ChromeDriver();
+            }else if(System.getenv("browser")=="firefox"){
+                driver = new FirefoxDriver();
+            }*/
 }
