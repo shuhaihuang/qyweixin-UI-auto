@@ -33,7 +33,8 @@ public class WebWorkWeixin {
         try {
             WebDriver driver = new ChromeDriver();
             driver.get("https://work.weixin.qq.com/wework_admin/frame");
-            Thread.sleep(15000);
+            driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
+            Thread.sleep(5000);
             Set< Cookie > cookies = driver.manage().getCookies();
             ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
             mapper.writeValue(new File("cookies.yaml"),cookies);
@@ -51,15 +52,16 @@ public class WebWorkWeixin {
         if (file.exists()){
             //如果登录成功过，就复用文件内的session进行登录
             driver = new ChromeDriver();
-            driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
             driver.get("https://work.weixin.qq.com/wework_admin/frame");
+            driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
+            Thread.sleep(5000);
 
             ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
             TypeReference typeReference =new TypeReference<List<HashMap<String,Object>>>() {};
             List<HashMap<String,Object>> cookies = mapper.readValue(new File("cookies.yaml"),typeReference);
-
             cookies.forEach(cookieMap->{
-                driver.manage().addCookie(new Cookie(cookieMap.get("name").toString(),cookieMap.get("value").toString()));
+                driver.manage().addCookie(new Cookie(cookieMap.get("name").toString(),
+                        cookieMap.get("value").toString()));
             });
 
             driver.navigate().refresh();

@@ -26,12 +26,11 @@ public class MainPage extends BasePage {
         ChromeOptions options = new ChromeOptions();
         System.setProperty("webdriver.chrome.driver", "D:\\chromedriver\\chromedriver.exe");
         options.addArguments("--user-data-dir='C:\\Users\\sean\\AppData\\Local\\Google\\Chrome\\User Data\\Default'");
-        options.addArguments("-headless");
         driver = new ChromeDriver(options);
 
         driver.get("https://work.weixin.qq.com/wework_admin/frame");
         driver.manage().window().maximize();
-        Thread.sleep(5000);
+        Thread.sleep(2000);
         driver.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
         Set< Cookie > cookies = driver.manage().getCookies();
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
@@ -46,26 +45,24 @@ public class MainPage extends BasePage {
             ChromeOptions options = new ChromeOptions();
             System.setProperty("webdriver.chrome.driver", "D:\\chromedriver\\chromedriver.exe");
             options.addArguments("--user-data-dir='C:\\Users\\sean\\AppData\\Local\\Google\\Chrome\\User Data\\Default'");
-            options.addArguments("--headless");
             driver = new ChromeDriver(options);
 
             driver.get("https://work.weixin.qq.com/wework_admin/frame#index");
-            Thread.sleep(5000);
             driver.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
             driver.manage().window().maximize();
+
             ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
             TypeReference typeReference =new TypeReference<List<HashMap<String,Object>>>() {};
             List<HashMap<String,Object>> cookies = mapper.readValue(new File("cookies.yaml"),typeReference);
-            System.out.println(cookies);
             cookies.forEach(cookieMap->{
                 driver.manage().addCookie(new Cookie(
                         cookieMap.get("name").toString(),
                         cookieMap.get("value").toString()
                 ));
             });
-            Thread.sleep(2000);
+            driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
             driver.navigate().refresh();
-            Thread.sleep(3000);
+            driver.manage().timeouts().implicitlyWait(2, TimeUnit.SECONDS);
         }else {
             needLogin();
         }

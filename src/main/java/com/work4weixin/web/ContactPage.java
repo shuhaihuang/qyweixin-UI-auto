@@ -3,6 +3,8 @@ package com.work4weixin.web;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
+import java.util.concurrent.TimeUnit;
+
 
 /**
  * @Author sean
@@ -19,9 +21,32 @@ public class ContactPage extends BasePage{
         super(driver);
     }
     //po原则6 添加成功的时候与添加失败返回的页面是不同的，需要封装为不同的方法
-    public ContactPage addMember(String username, String acctid, String mobile){
+    public ContactPage addMember(String name,String accountid,String phoneNum) throws InterruptedException {
+        Thread.sleep(5000);
+        click(By.xpath("(//a[contains(text(),'添加成员')])[2]"));
+        driver.manage().timeouts().implicitlyWait(5000, TimeUnit.SECONDS);
+        sendkeys(By.id("username"),name);
+        sendkeys(By.id("memberAdd_acctid"),accountid);
+        sendkeys(By.id("memberAdd_phone"),phoneNum);
+        click(By.xpath("(//a[contains(text(),'保存')])[2]"));
+        Thread.sleep(2000);
+        String addedName = getMember(name);
+        System.out.println("成员["+addedName+"]已添加！");
+        click(By.id("menu_index")); //回到主页
+        getMainPageMsg();
         return this;
     }
+
+    public String getMainPageMsg() {
+        String text = driver.findElement(By.cssSelector(".index_explore_title")).getText();
+        return text;
+    }
+
+    private String getMember(String username) {
+        String text = driver.findElement(By.xpath("(//a[contains(text(),'"+username+"')])[2]")).getText();
+        return text;
+    }
+
     //po原则6 添加失败返回的页面是不同的，需要封装为不同的方法
     public ContactPage addMemberFail(String username, String acctid, String mobile){
         return this;
@@ -73,14 +98,20 @@ public class ContactPage extends BasePage{
     }
 
     public void clearAllDepartment() throws InterruptedException {
-        //清理部门
+        //清理部门和成员
         Thread.sleep(5000);
         click((By.linkText("炎黄春秋")));
         //全选部门成员
         click(By.xpath("(//input[@type='checkbox'])[1]"));
         click(By.linkText("删除"));
-        click(By.linkText("确认"));
-        //清理完毕成员
+        click(By.linkText("确认")); //清理完毕成员
+        click(By.linkText("测试部"));
+        Thread.sleep(2000);
+        click(By.linkText("产品销售部"));
+        Thread.sleep(2000);
+        click(By.xpath("//li[@role='treeitem'][3]//span"));
+        click(By.linkText("删除"));
+        click(By.linkText("确定")); //清理完毕部门
 
         //todo: 所有的部门
     }
